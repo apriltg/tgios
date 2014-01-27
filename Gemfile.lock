@@ -1,0 +1,26 @@
+PATH
+  remote: .
+  specs:
+    tgios (0.0.1)
+      awesome_print_motion
+      motion-layout
+      plastic_cup (>= 0.1.1)
+      sugarcube (= 1.1.0)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    awesome_print_motion (0.1.0)
+    motion-layout (0.0.1)
+    motion-stump (0.3.0)
+    plastic_cup (0.1.1)
+    rake (10.1.0)
+    sugarcube (1.1.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  motion-stump
+  rake
+  tgios!
