@@ -7,13 +7,14 @@ begin
   Bundler.require
   require 'motion-stump'
   require 'sugarcube'
-    require 'plastic_cup'
+  require 'plastic_cup'
   require 'plastic_cup/stylesheet'
-  #require 'lib/tgios'
 rescue LoadError
 end
 
 Motion::Project::App.setup do |app|
   # Use `rake config' to see complete project settings.
   app.name = 'tgios'
+  app.identifier = 'com.tofugear.tgios'
+  app.specs_dir = "spec/"
 end
