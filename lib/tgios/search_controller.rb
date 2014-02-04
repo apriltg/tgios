@@ -1,5 +1,6 @@
 module Tgios
   class SearchController < ExtendedUIViewController
+    include ExtendedUITableView
     Events=[:record_selected, :search, :after_layout]
     attr_accessor :table_list_binding_options, :pop_after_selected, :field_name
 
@@ -21,17 +22,12 @@ module Tgios
 
     def viewDidLoad
       super
-      @search_result_table = UITableView.new
+      @search_result_table = add_full_table_view_to(self.view, :plain)
       @search_result_table_binding=UITableViewListBinding.new.bind(@search_result_table, @result, @field_name, @table_list_binding_options)
       @search_result_table_binding.on(:touch_row) do |record, event|
         select_record(record)
       end
-      Motion::Layout.new do |l|
-        l.view self.view
-        l.subviews 'table' => @search_result_table
-        l.vertical '|[table]|'
-        l.horizontal '|[table]|'
-      end
+
       @search_bar=UISearchBar.alloc.init
       @search_bar.frame=[[0,0],['100',0]]
       @search_bar.sizeToFit

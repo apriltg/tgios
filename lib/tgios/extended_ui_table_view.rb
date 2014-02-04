@@ -2,8 +2,9 @@ module Tgios
   module ExtendedUITableView
     include PlasticCup
 
-    def add_full_table_view_to(view)
-      table = Base.style(UITableView.grouped, :grouped_table)
+    def add_full_table_view_to(view, style=:grouped)
+      style ||= :plain
+      table = UITableView.send(style)
       Motion::Layout.new do |l|
         l.view view
         l.subviews 'table' => table

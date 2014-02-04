@@ -1,11 +1,16 @@
 module Tgios
   class UITableViewListBinding < BindingBase
+    def initialize
+      @events={}
+      @events[:build_cell]=->(cell_identifier) { build_cell(cell_identifier) }
+      @events[:update_cell]=->(record, cell, index_path) { update_cell_text(record, cell, index_path)}
+    end
+
     def bind(tableView, list, display_field, options={})
       @tableView=WeakRef.new(tableView)
       @tableView.dataSource=self
       @tableView.delegate=self
       @display_field=display_field
-      @events={}
       @list=WeakRef.new(list)
       @options=(options || {})
       return self
@@ -21,18 +26,26 @@ module Tgios
       @tableView.reloadData()
     end
 
+    def build_cell(cell_identifier)
+      cell=UITableViewCell.alloc.initWithStyle(UITableViewCellStyleDefault, reuseIdentifier: cell_identifier)
+      cell.textLabel.adjustsFontSizeToFitWidth = true
+      if @options[:lines] && @options[:lines] != 1
+        cell.textLabel.numberOfLines = 0
+      end
+      cell
+    end
+
+    def update_cell_text(record, cell, index_path)
+      cell.textLabel.text=record[@display_field]
+      cell
+    end
+
     def tableView(tableView, cellForRowAtIndexPath: index_path)
       record = @list[index_path.row]
       cell_identifier = "CELL_IDENTIFIER"
       cell=tableView.dequeueReusableCellWithIdentifier(cell_identifier)
-      if cell.nil?
-        cell=UITableViewCell.alloc.initWithStyle(UITableViewCellStyleDefault, reuseIdentifier: cell_identifier)
-        cell.textLabel.adjustsFontSizeToFitWidth = true
-        if @options[:lines] && @options[:lines] != 1
-          cell.textLabel.numberOfLines = 0
-        end
-      end
-      cell.textLabel.text=record[@display_field]
+      cell = @events[:build_cell].call(cell_identifier) if cell.nil?
+      @events[:update_cell].call(record, cell, index_path)
       cell
 
     end
