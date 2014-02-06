@@ -33,6 +33,7 @@ module Tgios
       @events[:build_cell]=->(cell_identifier, type) { build_cell(cell_identifier, type) }
       @events[:update_cell]=->(field_set, cell, index_path) { create_or_update_field(field_set, cell, index_path)}
       @events[:update_accessory]=->(field_set, cell, index_path, ui_field) { update_accessory_type_or_view(field_set, cell, index_path, ui_field)}
+      @events[:update_cell_height]=->(field_set, index_path) { update_cell_height(field_set, index_path) }
     end
 
 
@@ -83,6 +84,10 @@ module Tgios
       if type == :checkbox
         cell = UITableViewCell.default(cell_identifier)
         cell.textLabel.numberOfLines = 0
+      elsif type == :dynamic_label || type == :big_label
+        cell = UITableViewCell.value2(cell_identifier)
+        cell.detailTextLabel.numberOfLines = 0
+        cell.detailTextLabel.backgroundColor = :clear.uicolor
       else
         cell = UITableViewCell.value2(cell_identifier)
         cell.textLabel.numberOfLines = 2
@@ -126,9 +131,7 @@ module Tgios
           end
           text_field_binding.update(ui_field, @model)
           ui_field.becomeFirstResponder if field_set[:first_responder] # TODO: not work when cell is not visible, buggy
-        when :big_label
-          cell.detailTextLabel.numberOfLines = 0
-          cell.detailTextLabel.backgroundColor = :clear.uicolor
+        when :big_label, :dynamic_label
           cell.detailTextLabel.text = @model.send(field_set[:name])
 
         when :array
@@ -222,10 +225,22 @@ module Tgios
     def tableView(tableView, heightForRowAtIndexPath: index_path)
       field_set = field_set_at_index_path(index_path)
       field_set = field_set[:child_field] unless field_set[:child_index].nil?
+      @events[:update_cell_height].call(field_set, index_path)
+    end
+
+    def update_cell_height(field_set, index_path)
       if field_set[:type] == :big_label || field_set[:type] == :checkbox
-        20 + 20 * (field_set[:lines] || 2)
+        26 + 19 * (field_set[:lines] || 2)
       elsif field_set[:type] == :text_view
         110
+      elsif field_set[:type] == :dynamic_label
+        width = 284
+        width -= 20 unless field_set[:accessory].nil? || field_set[:accessory] == :none
+        width -= 94 if field_set[:show_label]
+        height = @model.send(field_set[:name]).sizeWithFont(UIFont.systemFontOfSize(14),
+                                                            constrainedToSize: [width, 9999],
+                                                            lineBreakMode: UILineBreakModeCharacterWrap).height + 20
+        [height, 45].max
       else
         45
       end

@@ -60,7 +60,7 @@ module Tgios
 
     def tableView(tableView, heightForRowAtIndexPath: index_path)
       if @options[:lines]
-        20 + 20 * (@options[:lines] || 2)
+        26 + 19 * (@options[:lines] || 2)
       else
         45
       end
