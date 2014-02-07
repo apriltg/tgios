@@ -88,6 +88,7 @@ module Tgios
         cell = UITableViewCell.value2(cell_identifier)
         cell.detailTextLabel.numberOfLines = 0
         cell.detailTextLabel.backgroundColor = :clear.uicolor
+        cell.textLabel.numberOfLines = 0
       else
         cell = UITableViewCell.value2(cell_identifier)
         cell.textLabel.numberOfLines = 2
@@ -234,6 +235,7 @@ module Tgios
       elsif field_set[:type] == :text_view
         110
       elsif field_set[:type] == :dynamic_label
+        return 45 if @model.send(field_set[:name]).nil?
         width = 284
         width -= 20 unless field_set[:accessory].nil? || field_set[:accessory] == :none
         width -= 94 if field_set[:show_label]
