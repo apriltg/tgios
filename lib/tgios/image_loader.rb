@@ -14,10 +14,10 @@ module Tgios
     def load
       image = UIImage.imageWithContentsOfFile(self.file_path)
       if image.nil?
-        AFMotion::HTTP.get(@url) do |result|
-          image = UIImage.imageWithData(result.object)
+        AFMotion::Image.get(@url) do |result|
+          image = result.object
           @events[:image_loaded].call(image, result.success?) unless @events.nil? || @events[:image_loaded].nil?
-          NSFileManager.defaultManager.createFileAtPath(self.file_path, contents: result.object, attributes:nil)
+          NSFileManager.defaultManager.createFileAtPath(self.file_path, contents: UIImageJPEGRepresentation(image, 0.95), attributes:nil)
         end
       else
         @events[:image_loaded].call(image, true) unless @events.nil? || @events[:image_loaded].nil?
