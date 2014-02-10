@@ -84,14 +84,18 @@ module Tgios
       if type == :checkbox
         cell = UITableViewCell.default(cell_identifier)
         cell.textLabel.numberOfLines = 0
-      elsif type == :dynamic_label || type == :big_label
-        cell = UITableViewCell.value2(cell_identifier)
-        cell.detailTextLabel.numberOfLines = 0
-        cell.detailTextLabel.backgroundColor = :clear.uicolor
-        cell.textLabel.numberOfLines = 0
       else
         cell = UITableViewCell.value2(cell_identifier)
-        cell.textLabel.numberOfLines = 2
+
+        if type == :dynamic_label || type == :big_label
+          cell.detailTextLabel.numberOfLines = 0
+          cell.detailTextLabel.backgroundColor = :clear.uicolor
+          cell.textLabel.numberOfLines = 0
+        elsif type == :label_only
+          cell.detailTextLabel.textColor = UIColor.colorWithRed(0, green: 122.0/255.0, blue: 1.0, alpha: 1.0)
+        else
+          cell.textLabel.numberOfLines = 2
+        end
       end
       cell
     end
