@@ -51,6 +51,10 @@ module Tgios
       fm.contentsOfDirectoryAtPath(self.base_path, error:nil).each do |filename|
         fm.removeItemAtPath("#{self.base_path}#{filename}", error: nil)
       end
+      cache_path = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true).last
+      fm.contentsOfDirectoryAtPath(cache_path, error: nil).each do |filename|
+        fm.removeItemAtPath("#{cache_path}/#{filename}", error: nil)
+      end
     end
 
     def onPrepareForRelease
