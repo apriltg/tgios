@@ -34,6 +34,13 @@ module Tgios
       super
     end
 
+    def dismissViewControllerAnimated(flag, completion:completion)
+      super(flag, ->{
+        self.prepareForRelease()
+        completion.call unless completion.nil?
+      })
+    end
+
     def dealloc
       ap "#{self.class.name} dealloc"
       super
