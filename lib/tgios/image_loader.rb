@@ -57,6 +57,17 @@ module Tgios
       end
     end
 
+    def self.load_url(url, &block)
+      unless url.nil?
+        image_loader = ImageLoader.new(url)
+        image_loader.on(:image_loaded) do |image, success|
+          block.call(image, success)
+          image_loader.prepareForRelease
+        end
+        image_loader.load
+      end
+    end
+
     def onPrepareForRelease
       @events = nil
     end
