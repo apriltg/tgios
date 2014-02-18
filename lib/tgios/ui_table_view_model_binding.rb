@@ -229,11 +229,11 @@ module Tgios
 
     def tableView(tableView, heightForRowAtIndexPath: index_path)
       field_set = field_set_at_index_path(index_path)
-      field_set = field_set[:child_field] unless field_set[:child_index].nil?
       @events[:update_cell_height].call(field_set, index_path)
     end
 
     def update_cell_height(field_set, index_path)
+      field_set = field_set[:child_field] unless field_set[:child_index].nil?
       if field_set[:type] == :big_label || field_set[:type] == :checkbox
         26 + 19 * (field_set[:lines] || 2)
       elsif field_set[:type] == :text_view
