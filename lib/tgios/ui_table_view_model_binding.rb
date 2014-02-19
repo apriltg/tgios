@@ -91,7 +91,7 @@ module Tgios
           cell.detailTextLabel.numberOfLines = 0
           cell.detailTextLabel.backgroundColor = :clear.uicolor
           cell.textLabel.numberOfLines = 0
-        elsif type == :label_only
+        elsif type == :label_only || type == :array
           cell.detailTextLabel.textColor = UIColor.colorWithRed(0, green: 122.0/255.0, blue: 1.0, alpha: 1.0)
         else
           cell.textLabel.numberOfLines = 2
