@@ -66,6 +66,10 @@ module Tgios
       end
     end
 
+    def tableView(tableView, willDisplayCell:cell, forRowAtIndexPath:indexPath)
+      @events[:reach_bottom].call unless @events[:reach_bottom].nil? || indexPath.row < @list.length - 1
+    end
+
     def onPrepareForRelease
       @events=nil
       @list=nil

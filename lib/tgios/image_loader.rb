@@ -12,16 +12,24 @@ module Tgios
     end
 
     def load
-      image = UIImage.imageWithContentsOfFile(self.file_path)
+      image = get_image
       if image.nil?
         AFMotion::Image.get(@url) do |result|
           image = result.object
           @events[:image_loaded].call(image, result.success?) unless @events.nil? || @events[:image_loaded].nil?
-          NSFileManager.defaultManager.createFileAtPath(self.file_path, contents: UIImageJPEGRepresentation(image, 0.95), attributes:nil)
+          save_image(image)
         end
       else
         @events[:image_loaded].call(image, true) unless @events.nil? || @events[:image_loaded].nil?
       end
+    end
+
+    def get_image
+      UIImage.imageWithContentsOfFile(file_path)
+    end
+
+    def save_image(image)
+      NSFileManager.defaultManager.createFileAtPath(self.file_path, contents: UIImageJPEGRepresentation(image, 0.95), attributes:nil)
     end
 
     def self.base_path
