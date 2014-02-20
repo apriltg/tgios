@@ -138,7 +138,7 @@ module Tgios
       field_set = field_set_at_index_path(index_path)
       field_set = field_set[:child_field] unless field_set[:child_index].nil?
       if field_set[:type] == :big_label || field_set[:type] == :checkbox
-        20 + 20 * (field_set[:lines] || 2)
+        26 + 19 * (field_set[:lines] || 2)
       else
         45
       end

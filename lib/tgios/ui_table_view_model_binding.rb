@@ -34,6 +34,7 @@ module Tgios
       @events[:update_cell]=->(field_set, cell, index_path) { create_or_update_field(field_set, cell, index_path)}
       @events[:update_accessory]=->(field_set, cell, index_path, ui_field) { update_accessory_type_or_view(field_set, cell, index_path, ui_field)}
       @events[:update_cell_height]=->(field_set, index_path) { update_cell_height(field_set, index_path) }
+      @contact_buttons = []
     end
 
 
@@ -197,8 +198,29 @@ module Tgios
     end
 
     def update_accessory_type_or_view(field_set, cell, index_path, ui_field)
-      cell.accessoryType = (field_set[:accessory] || :none).uitablecellaccessory
-      cell.accessoryView = nil
+
+      accessory = field_set[:child_index].nil? ? field_set[:accessory] : field_set[:child_field][:accessory]
+
+      accessory_view = cell.accessoryView
+      if accessory == :contact
+        if accessory_view && accessory_view.buttonType == :contact.uibuttontype
+          contact_button = accessory_view
+        else
+          contact_button = (@contact_buttons.pop || UIButton.contact)
+          cell.accessoryView = contact_button
+        end
+        unhook(contact_button, :tapped)
+        hook(contact_button, :tapped) do
+          tableView(@tableView, didSelectRowAtIndexPath:index_path)
+        end
+      else
+        if accessory_view && accessory_view.buttonType == :contact.uibuttontype
+          @contact_buttons << accessory_view
+          cell.accessoryView = nil
+        end
+        cell.accessoryType = (accessory || :none).uitablecellaccessory
+        cell.accessoryView = nil
+      end
     end
 
     def tableView(tableView, didSelectRowAtIndexPath:index_path)
