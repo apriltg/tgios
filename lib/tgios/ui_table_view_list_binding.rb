@@ -11,7 +11,7 @@ module Tgios
       @tableView.dataSource=self
       @tableView.delegate=self
       @display_field=display_field
-      @list=WeakRef.new(list)
+      set_list(list)
       @options=(options || {})
       return self
     end
@@ -22,8 +22,14 @@ module Tgios
     end
 
     def reload(list)
-      @list=list
+      set_list(list)
       @tableView.reloadData()
+    end
+
+    def set_list(list)
+      @list=WeakRef.new(list)
+      @page = 1
+      @total = nil
     end
 
     def build_cell(cell_identifier)
@@ -67,7 +73,18 @@ module Tgios
     end
 
     def tableView(tableView, willDisplayCell:cell, forRowAtIndexPath:indexPath)
-      @events[:reach_bottom].call unless @events[:reach_bottom].nil? || indexPath.row < @list.length - 1
+      unless @events[:load_more].nil? || indexPath.row < @list.length - 1 || !@total.nil? && @total <= @list.count || @loading
+        @loading = true
+        @events[:load_more].call(@page+1, indexPath) do |success, results, total|
+          if success
+            @total = total
+            @page += 1
+            @list += results
+            @tableView.reloadData
+          end
+          @loading = false
+        end
+      end
     end
 
     def onPrepareForRelease

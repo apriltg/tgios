@@ -1,7 +1,7 @@
 module Tgios
   class SearchController < ExtendedUIViewController
     include ExtendedUITableView
-    Events=[:record_selected, :search, :after_layout]
+    Events=[:record_selected, :search, :after_layout, :load_more]
     attr_accessor :table_list_binding_options, :pop_after_selected, :field_name
 
     def on(event_name, &block)
@@ -26,6 +26,8 @@ module Tgios
       @search_result_table_binding=UITableViewListBinding.new.bind(@search_result_table, @result, @field_name, @table_list_binding_options)
       @search_result_table_binding.on(:touch_row) do |record, event|
         select_record(record)
+      end.on(:load_more) do |page, index_path, &block|
+        @events[:load_more].call(@search_bar.text, page, index_path, &block) unless @events[:load_more].nil?
       end
 
       @search_bar=UISearchBar.alloc.init
@@ -43,11 +45,13 @@ module Tgios
 
       unless @events.nil? || @events[:search].nil?
         @events[:search].call(searchBar.text) do |success, result|
-          @result=result
-          if @result.count == 1
-            select_record(@result.first)
-          else
-            @search_result_table_binding.reload(@result) unless @search_result_table_binding.nil?
+          if success
+            @result=result
+            if @result.count == 1
+              select_record(@result.first)
+            else
+              @search_result_table_binding.reload(@result) unless @search_result_table_binding.nil?
+            end
           end
         end
       end
