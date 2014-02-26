@@ -26,5 +26,14 @@ module Tgios
         normalized_image
       end
     end
+
+    def self.add_full_subview(super_view, subview)
+      Motion::Layout.new do |l|
+        l.view super_view
+        l.subviews 'subview' => subview
+        l.vertical '|[subview]|'
+        l.horizontal '|[subview]|'
+      end
+    end
   end
 end
