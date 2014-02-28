@@ -35,5 +35,15 @@ module Tgios
         l.horizontal '|[subview]|'
       end
     end
+
+    def self.get_image(item, &block)
+      if item[:url].present?
+        Tgios::ImageLoader.load_url(item[:url]) do |image, success|
+          block.call(success ? image : nil)
+        end
+      elsif item[:image].present?
+        block.call(item[:image])
+      end
+    end
   end
 end

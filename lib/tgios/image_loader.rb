@@ -66,7 +66,9 @@ module Tgios
     end
 
     def self.load_url(url, &block)
-      unless url.nil?
+      if url.nil?
+        block.call(nil, nil)
+      else
         image_loader = ImageLoader.new(url)
         image_loader.on(:image_loaded) do |image, success|
           block.call(image, success)
