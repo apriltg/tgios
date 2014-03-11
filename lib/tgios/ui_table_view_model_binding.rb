@@ -126,14 +126,14 @@ module Tgios
           text_field_binding=@bindings[field_set[:name]]
           if text_field_binding.nil?
             text_field_binding=UITextFieldBinding.new(@model, ui_field, field_set[:name], field_set)
-            text_field_binding.on(:begin_edit) do |model, field_name, event|
-              @events[:text_begin_edit].call(model, field_name, event) unless @events[:text_begin_edit].nil?
-              performSelector('will_scroll_to_index_path:', withObject: index_path, afterDelay:0.01)
-            end
             text_field_binding.on(:return_tapped) do |model, field_name, event|
               @events[:text_return_tapped].call(model, field_name, event) unless @events[:text_return_tapped].nil?
             end
             @bindings[field_set[:name]]=text_field_binding
+          end
+          text_field_binding.on(:begin_edit) do |model, field_name, event|
+            @events[:text_begin_edit].call(model, field_name, event) unless @events[:text_begin_edit].nil?
+            performSelector('will_scroll_to_index_path:', withObject: index_path, afterDelay:0.01)
           end
           text_field_binding.update(ui_field, @model)
           ui_field.becomeFirstResponder if field_set[:first_responder] # TODO: not work when cell is not visible, buggy
@@ -178,14 +178,14 @@ module Tgios
           text_field_binding=@tv_bindings[field_set[:name]]
           if text_field_binding.nil?
             text_field_binding=UITextViewBinding.new(@model, ui_field, field_set[:name], field_set)
-            text_field_binding.on(:begin_edit) do |model, field_name, event|
-              @events[:text_begin_edit].call(model, field_name, event) unless @events[:text_begin_edit].nil?
-              performSelector('will_scroll_to_index_path:', withObject: index_path, afterDelay:0.01)
-            end
             text_field_binding.on(:return_tapped) do |model, field_name, event|
               @events[:text_return_tapped].call(model, field_name, event) unless @events[:text_return_tapped].nil?
             end
             @tv_bindings[field_set[:name]]=text_field_binding
+          end
+          text_field_binding.on(:begin_edit) do |model, field_name, event|
+            @events[:text_begin_edit].call(model, field_name, event) unless @events[:text_begin_edit].nil?
+            performSelector('will_scroll_to_index_path:', withObject: index_path, afterDelay:0.01)
           end
           text_field_binding.update(ui_field, @model)
           ui_field.becomeFirstResponder if field_set[:first_responder] # TODO: not work when cell is not visible, buggy
