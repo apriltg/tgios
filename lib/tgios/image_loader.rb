@@ -16,8 +16,9 @@ module Tgios
       if image.nil?
         AFMotion::Image.get(@url) do |result|
           image = result.object
+          image = self.class.scale_to(image, self.class.screen_scale)
           @events[:image_loaded].call(image, result.success?) unless @events.nil? || @events[:image_loaded].nil?
-          save_image(image)
+          save_image(image) if image.is_a?(UIImage)
         end
       else
         @events[:image_loaded].call(image, true) unless @events.nil? || @events[:image_loaded].nil?
@@ -25,10 +26,12 @@ module Tgios
     end
 
     def get_image
-      UIImage.imageWithContentsOfFile(file_path)
+      data = NSData.dataWithContentsOfFile(file_path)
+      data.uiimage(self.class.screen_scale) unless data.nil?
     end
 
     def save_image(image)
+
       NSFileManager.defaultManager.createFileAtPath(self.file_path, contents: UIImageJPEGRepresentation(image, 0.95), attributes:nil)
     end
 
@@ -77,6 +80,19 @@ module Tgios
         image_loader.load
       end
     end
+
+    def self.scale_to(image, scale=screen_scale)
+      if image.is_a?(UIImage) && image.scale != scale
+        UIImage.imageWithCGImage(image.CGImage, scale: scale, orientation: image.imageOrientation)
+      else
+        image
+      end
+    end
+
+    def self.screen_scale
+      UIScreen.mainScreen.scale
+    end
+
 
     def onPrepareForRelease
       @events = nil
