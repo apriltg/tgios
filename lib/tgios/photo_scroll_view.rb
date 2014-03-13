@@ -25,25 +25,27 @@ module Tgios
 
     def image=(image)
       super
-      frame = self.frame
-      page_rect = CGRectMake(0, 0, image.size.width, image.size.height)
+      if image.is_a?(UIImage)
+        frame = self.frame
+        page_rect = CGRectMake(0, 0, image.size.width, image.size.height)
 
-      img_scale = frame.size.width / page_rect.size.width
-      fit_scale = frame.size.height / page_rect.size.height
-      fit_scale = img_scale if img_scale < fit_scale
+        img_scale = frame.size.width / page_rect.size.width
+        fit_scale = frame.size.height / page_rect.size.height
+        fit_scale = img_scale if img_scale < fit_scale
 
-      page_rect.size = CGSizeMake(page_rect.size.width * img_scale, page_rect.size.height * img_scale)
+        page_rect.size = CGSizeMake(page_rect.size.width * img_scale, page_rect.size.height * img_scale)
 
-      @image_view = PlasticCup::Base.style(UIImageView.new,
-                                           image: image,
-                                           frame: page_rect,
-                                           contentMode: UIViewContentModeScaleAspectFit)
-      self.addSubview(@image_view)
+        @image_view = PlasticCup::Base.style(UIImageView.new,
+                                             image: image,
+                                             frame: page_rect,
+                                             contentMode: UIViewContentModeScaleAspectFit)
+        self.addSubview(@image_view)
 
-      self.zoomScale = 0.995 if page_rect.size.height > frame.size.height
+        self.zoomScale = 0.995 if page_rect.size.height > frame.size.height
 
-      self.maximumZoomScale = MAX_SCALE / img_scale
-      self.minimumZoomScale = fit_scale / img_scale
+        self.maximumZoomScale = MAX_SCALE / img_scale
+        self.minimumZoomScale = fit_scale / img_scale
+      end
     end
 
     def layoutSubviews
