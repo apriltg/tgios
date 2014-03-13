@@ -25,6 +25,12 @@ module Tgios
 
     end
 
+    def unhook(control, event)
+      if control.is_a?(UIButton)
+        UIButtonBinding.unbind(control)
+      end
+    end
+
     def viewDidDisappear(animated)
       if self.isMovingFromParentViewController
         ap "#{self.class.name} view moving away, prepare for release"
