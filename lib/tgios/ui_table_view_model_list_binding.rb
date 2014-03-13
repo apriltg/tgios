@@ -144,6 +144,12 @@ module Tgios
       end
     end
 
+    def tableView(tableView, willDisplayCell:cell, forRowAtIndexPath:indexPath)
+      unless @events[:reach_bottom].nil? || indexPath.section < @models.length - 1 || indexPath.row < tableView(nil, numberOfRowsInSection: indexPath.section) - 1
+        @events[:reach_bottom].call(indexPath)
+      end
+    end
+
     def field_set_at_index_path(index_path)
       row = index_path.row
       array_indices = @fields.each_index.select{|i| @fields[i][:type] == :array}
