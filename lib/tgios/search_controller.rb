@@ -2,7 +2,7 @@ module Tgios
   class SearchController < ExtendedUIViewController
     include ExtendedUITableView
     Events=[:record_selected, :search, :after_layout, :load_more]
-    attr_accessor :table_list_binding_options, :pop_after_selected, :field_name
+    attr_accessor :table_list_binding_options, :pop_after_selected, :hide_keyboard, :field_name
 
     def on(event_name, &block)
       raise ArgumentError.new("Event not found, valid events are: [#{Events.join(', ')}]") unless Events.include?(event_name)
@@ -35,7 +35,7 @@ module Tgios
       @search_bar.sizeToFit
       @search_bar.delegate=self
       @search_result_table.tableHeaderView=@search_bar
-      @search_bar.becomeFirstResponder
+      @search_bar.becomeFirstResponder unless @hide_keyboard
       @events[:after_layout].call(@search_bar, @search_result_table) unless @events[:after_layout].nil?
 
     end
