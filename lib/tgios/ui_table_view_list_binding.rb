@@ -76,7 +76,7 @@ module Tgios
       unless @events[:load_more].nil? || indexPath.row < @list.length - 1 || !@total.nil? && @total <= @list.count || @loading
         @loading = true
         @events[:load_more].call(@page+1, indexPath) do |success, results, total|
-          if success
+          if success && !@list.nil?
             @total = total
             @page += 1
             @list += results
