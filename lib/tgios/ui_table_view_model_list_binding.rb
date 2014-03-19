@@ -7,6 +7,7 @@ module Tgios
       @events[:build_cell]=->(cell_identifier) {
         cell = UITableViewCell.value1(cell_identifier)
         cell.detailTextLabel.adjustsFontSizeToFitWidth = true
+        cell.clipsToBounds = true
         cell
       }
       @events[:update_cell]=->(field_set, cell, index_path) { update_field(field_set, cell, index_path)}

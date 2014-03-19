@@ -98,6 +98,7 @@ module Tgios
           cell.textLabel.numberOfLines = 2
         end
       end
+      cell.clipsToBounds = true
       cell
     end
 

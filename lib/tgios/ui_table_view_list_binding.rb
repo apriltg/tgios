@@ -38,6 +38,7 @@ module Tgios
       if @options[:lines] && @options[:lines] != 1
         cell.textLabel.numberOfLines = 0
       end
+      cell.clipsToBounds = true
       cell
     end
 
