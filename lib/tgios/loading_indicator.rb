@@ -1,8 +1,11 @@
 include PlasticCup
 module Tgios
   class LoadingView < UIView
+    attr_accessor :load_count
+
     def initWithFrame(frame)
       if super
+        @load_count = 0
         self.hidden = true
         base_view = Base.style(UIView.new, backgroundColor: :black.uicolor, alpha: 0.5)
 
@@ -33,15 +36,21 @@ module Tgios
       loading_view
     end
 
-    def start_loading(text='')
+    def start_loading(text='', force=false)
       @label.text = text
-      self.hidden = false
-      @indicator.startAnimating
+      if @load_count <= 0 || force
+        self.hidden = false
+        @indicator.startAnimating
+      end
+      @load_count += 1
     end
 
-    def stop_loading
-      self.hidden = true
-      @indicator.stopAnimating
+    def stop_loading(force=false)
+      @load_count -=1
+      if @load_count <= 0 || force
+        self.hidden = true
+        @indicator.stopAnimating
+      end
     end
   end
 
@@ -50,13 +59,13 @@ module Tgios
       @loading_view = LoadingView.add_loading_view_to(view)
     end
 
-    def start_loading(text='')
+    def start_loading(text='', force=false)
       self.view.endEditing(true)
-      @loading_view.start_loading(text)
+      @loading_view.start_loading(text, force)
     end
 
-    def stop_loading
-      @loading_view.stop_loading
+    def stop_loading(force=false)
+      @loading_view.stop_loading(force)
     end
   end
 end
