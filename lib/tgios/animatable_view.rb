@@ -9,6 +9,9 @@ module Tgios
                                        backgroundColor: :white.uicolor,
                                        alpha: 0.95)
       self.addSubview(bg_view)
+      if self.layer.respondsToSelector('setAllowsGroupOpacity:')
+        self.layer.allowsGroupOpacity = false
+      end
       self
     end
 
