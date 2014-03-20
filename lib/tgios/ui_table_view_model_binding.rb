@@ -204,10 +204,10 @@ module Tgios
 
       accessory_view = cell.accessoryView
       if accessory == :contact
-        if accessory_view && accessory_view.buttonType == :contact.uibuttontype
+        if accessory_view && accessory_view.is_a?(UIButton) && accessory_view.buttonType == :contact.uibuttontype && accessory_view.tag == 52
           contact_button = accessory_view
         else
-          contact_button = (@contact_buttons.pop || UIButton.contact)
+          contact_button = (@contact_buttons.pop || Base.style(UIButton.contact, tag: 52))
           cell.accessoryView = contact_button
         end
         unhook(contact_button, :tapped)
@@ -215,7 +215,7 @@ module Tgios
           tableView(@tableView, didSelectRowAtIndexPath:index_path)
         end
       else
-        if accessory_view && accessory_view.buttonType == :contact.uibuttontype
+        if accessory_view && accessory_view.is_a?(UIButton) && accessory_view.buttonType == :contact.uibuttontype && accessory_view.tag == 52
           @contact_buttons << accessory_view
           cell.accessoryView = nil
         end

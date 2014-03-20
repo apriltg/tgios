@@ -29,7 +29,7 @@ module Tgios
     end
 
     def dealloc
-      @button.removeTarget(self, action: 'button_tapped', forControlEvents: UIControlEventTouchUpInside)
+      @button.removeTarget(self, action: 'button_tapped', forControlEvents: UIControlEventTouchUpInside) if @button.weakref_alive?
       super
     end
   end
