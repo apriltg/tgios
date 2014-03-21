@@ -43,6 +43,8 @@ module Tgios
         end
       elsif item[:image].present?
         block.call(item[:image])
+      else
+        block.call(nil)
       end
     end
   end
