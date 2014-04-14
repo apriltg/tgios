@@ -59,9 +59,10 @@ module Tgios
 
     def self.clear_files
       fm = NSFileManager.defaultManager
-      fm.contentsOfDirectoryAtPath(self.base_path, error:nil).each do |filename|
+      files = fm.contentsOfDirectoryAtPath(self.base_path, error:nil)
+      files.each do |filename|
         fm.removeItemAtPath("#{self.base_path}#{filename}", error: nil)
-      end
+      end if files.present?
       cache_path = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, true).last
       fm.contentsOfDirectoryAtPath(cache_path, error: nil).each do |filename|
         fm.removeItemAtPath("#{cache_path}/#{filename}", error: nil)
