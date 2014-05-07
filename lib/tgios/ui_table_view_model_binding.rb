@@ -48,6 +48,7 @@ module Tgios
       self.model=model
       @tableView.dataSource=self
       @tableView.delegate=self
+      @table_utility_binding = UITableViewUtilityBinding.new.bind(@tableView)
       self
     end
 
@@ -134,7 +135,7 @@ module Tgios
           end
           text_field_binding.on(:begin_edit) do |model, field_name, event|
             @events[:text_begin_edit].call(model, field_name, event) unless @events[:text_begin_edit].nil?
-            performSelector('will_scroll_to_index_path:', withObject: index_path, afterDelay:0.01)
+            @table_utility_binding.will_scroll_to_index_path(index_path)
           end
           text_field_binding.update(ui_field, @model)
           ui_field.becomeFirstResponder if field_set[:first_responder] # TODO: not work when cell is not visible, buggy
@@ -186,7 +187,7 @@ module Tgios
           end
           text_field_binding.on(:begin_edit) do |model, field_name, event|
             @events[:text_begin_edit].call(model, field_name, event) unless @events[:text_begin_edit].nil?
-            performSelector('will_scroll_to_index_path:', withObject: index_path, afterDelay:0.01)
+            @table_utility_binding.will_scroll_to_index_path(index_path)
           end
           text_field_binding.update(ui_field, @model)
           ui_field.becomeFirstResponder if field_set[:first_responder] # TODO: not work when cell is not visible, buggy
@@ -228,7 +229,7 @@ module Tgios
       @selected_field_set=field_set_at_index_path(index_path)
       @events[:touch_row].call(@selected_field_set, {tableView: tableView, didSelectRowAtIndexPath:index_path}) if @events.has_key?(:touch_row)
       if @selected_field_set[:scroll]
-        performSelector('will_scroll_to_index_path:', withObject: index_path, afterDelay:0.01)
+        @table_utility_binding.will_scroll_to_index_path(index_path)
       end
 
       field_set = @selected_field_set
@@ -292,108 +293,17 @@ module Tgios
     end
 
     def listen_to_keyboard
-      @scroll_when_editing = true
-      NSNotificationCenter.defaultCenter.addObserver(self, selector: 'keyboardWillShow:', name: UIKeyboardWillShowNotification, object: nil)
-      NSNotificationCenter.defaultCenter.addObserver(self, selector: 'keyboardWillHide:', name: UIKeyboardWillHideNotification, object: nil)
+      @table_utility_binding.listen_to_keyboard
     end
 
     def stop_listen_to_keyboard
-      @scroll_when_editing = false
-      NSNotificationCenter.defaultCenter.removeObserver(self)
-    end
-
-    def keyboardWillShow(note)
-      shrink_table_view(note)
-    end
-
-    def keyboardWillHide(note)
-      expand_table_view(note)
-    end
-
-    def expand_table_view(note)
-      @expanding = true
-      offset_y = @tableView.contentOffset.y
-      frame_height = @tableView.frame.size.height
-      content_height = @tableView.contentSize.height
-      new_offset_height = nil
-      if frame_height > content_height
-        if offset_y != 0
-          new_offset_height = 0
-        end
-      else
-        bottom_offset = frame_height - content_height + offset_y
-        if bottom_offset > 0
-          new_offset_height = offset_y - bottom_offset
-        end
-      end
-
-      if new_offset_height.nil?
-        reset_content_inset_bottom
-      else
-        curve = note[UIKeyboardAnimationCurveUserInfoKey]
-        duration = note[UIKeyboardAnimationDurationUserInfoKey]
-        @animation_proc = -> {
-          @tableView.setContentOffset([0, new_offset_height])
-        }
-        @completion_proc = lambda { |finished|
-          reset_content_inset_bottom
-        }
-        UIView.animateWithDuration(duration-0.01, delay: 0, options: curve,
-                                   animations: @animation_proc,
-                                   completion: @completion_proc)
-      end
-    end
-
-    def shrink_table_view(note)
-      # TODO: don't shrink when table frame bottom is above the keyboard
-      @shrinking = true
-      rect = note[UIKeyboardFrameEndUserInfoKey].CGRectValue
-      if @expanding
-        @shrink_height = rect.size.height
-      else
-        set_content_inset_bottom(rect.size.height)
-      end
-    end
-
-    def reset_content_inset_bottom
-      @tableView.contentInset = UIEdgeInsetsZero
-      @tableView.scrollIndicatorInsets = UIEdgeInsetsZero
-      @expanding = false
-      if @shrink_height
-        set_content_inset_bottom(@shrink_height)
-        @shrink_height = nil
-      end
-    end
-
-    def set_content_inset_bottom(height)
-      @tableView.contentInset = UIEdgeInsetsMake(0,0,height,0)
-      @tableView.scrollIndicatorInsets = UIEdgeInsetsMake(0,0,height,0)
-      @shrinking = false
-      if @index_path_to_scroll
-        scroll_to_index_path(@index_path_to_scroll)
-        @index_path_to_scroll = nil
-      end
-    end
-
-    def will_scroll_to_index_path(index_path)
-      if @scroll_when_editing
-        if @shrinking
-          @index_path_to_scroll = index_path
-        else
-          scroll_to_index_path(index_path)
-        end
-      end
-    end
-
-    def scroll_to_index_path(index_path)
-      @tableView.scrollToRowAtIndexPath(index_path, atScrollPosition: UITableViewScrollPositionBottom, animated: true)
-      @index_path_to_scroll = nil
+      @table_utility_binding.stop_listen_to_keyboard
     end
 
     def bindings_prepare_release
       @bindings.values.each do |binding|
         binding.prepareForRelease
-      end if @binding.is_a?(Hash)
+      end if @bindings.is_a?(Hash)
       @tv_bindings.values.each do |binding|
         binding.prepareForRelease
       end if @tv_bindings.is_a?(Hash)
@@ -401,9 +311,7 @@ module Tgios
 
     def onPrepareForRelease
       bindings_prepare_release
-      self.stop_listen_to_keyboard
-      @animation_proc=nil
-      @completion_proc=nil
+      @table_utility_binding.prepareForRelease
       @bindings=nil
       @tv_bindings=nil
       @events=nil

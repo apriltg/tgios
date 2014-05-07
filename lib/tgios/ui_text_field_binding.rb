@@ -72,6 +72,7 @@ module Tgios
 
     def on(event, &block)
       @events[event]=block
+      self
     end
 
 
@@ -108,7 +109,7 @@ module Tgios
     end
 
     def add_decimal_button
-      if is_decimal? && @ui_field.delegate == self
+      if is_decimal? && @ui_field.delegate == self && !@options[:ignore_number_addon]
         temp_window = (UIApplication.sharedApplication.windows[1] || UIApplication.sharedApplication.windows[0])
         temp_window.subviews.each do |keyboard|
           if keyboard.description.hasPrefix('<UIPeripheralHost')
@@ -186,7 +187,7 @@ module Tgios
         @ui_field.leftViewMode = UITextFieldViewModeNever
       end
 
-      if is_number_pad?
+      if is_number_pad? && !@options[:ignore_number_addon]
         text_toolbar = PlasticCup::Base.style(UIToolbar.new, frame: CGRectMake(0,0,320,44))
         done_button = UIBarButtonItem.alloc.initWithBarButtonSystemItem(UIBarButtonSystemItemDone, target: self, action: 'textFieldShouldReturn:')
         text_toolbar.items=[
