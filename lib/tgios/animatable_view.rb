@@ -49,5 +49,9 @@ module Tgios
         @is_shown = false
       end
     end
+
+    def is_shown
+      @is_shown
+    end
   end
 end
