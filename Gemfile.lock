@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    tgios (0.0.23)
+    tgios (0.0.24)
       awesome_print_motion
       motion-layout
       plastic_cup (>= 0.1.1)
