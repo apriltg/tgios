@@ -4,12 +4,7 @@ module Tgios
       super
 
       @events={}
-      @events[:build_cell]=->(cell_identifier) {
-        cell = UITableViewCell.value1(cell_identifier)
-        cell.detailTextLabel.adjustsFontSizeToFitWidth = true
-        cell.clipsToBounds = true
-        cell
-      }
+      @events[:build_cell]=->(cell_identifier, type) { build_cell(cell_identifier, type)}
       @events[:update_cell]=->(field_set, cell, index_path) { update_field(field_set, cell, index_path)}
       self
 
@@ -45,12 +40,19 @@ module Tgios
       cell=tableView.dequeueReusableCellWithIdentifier(cell_identifier)
       isReusedCell=!cell.nil?
 
-      cell=@events[:build_cell].call(cell_identifier) unless isReusedCell
+      cell=@events[:build_cell].call(cell_identifier, type) unless isReusedCell
 
       @events[:update_cell].call(field_set, cell, index_path)
 
       cell
 
+    end
+
+    def build_cell(cell_identifier, type)
+      cell = UITableViewCell.value1(cell_identifier)
+      cell.detailTextLabel.adjustsFontSizeToFitWidth = true
+      cell.clipsToBounds = true
+      cell
     end
 
     def update_field(o_field_set, cell, index_path)
