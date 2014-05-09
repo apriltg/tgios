@@ -96,6 +96,24 @@ module Tgios
       @events[:begin_edit].call(@model, @field_name, {text_field: weak_text_field}) unless @events[:begin_edit].nil?
     end
 
+    def textFieldShouldBeginEditing(textField)
+      if @events[:should_edit].nil?
+        true
+      else
+        weak_text_field=WeakRef.new(textField)
+        @events[:should_edit].call(@model, @field_name, {text_field: weak_text_field})
+      end
+    end
+
+    def textFieldShouldClear(textField)
+      if @events[:should_clear].nil?
+        true
+      else
+        weak_text_field=WeakRef.new(textField)
+        @events[:should_clear].call(@model, @field_name, {text_field: weak_text_field})
+      end
+    end
+
     def keyboardDidShow(note)
       add_decimal_button if @ui_field.isFirstResponder
     end
