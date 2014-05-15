@@ -31,8 +31,7 @@ module Tgios
       @events={}
       @ui_field=WeakRef.new(ui_field)
       @model=WeakRef.new(model)
-      update_ui_field_style
-      assign_value_to_field
+      update(ui_field, model)
     end
 
     def assign_value_to_field
@@ -279,7 +278,6 @@ module Tgios
 
     def dealloc
       prepareForRelease
-      ap 'dealloc ui_text_field_binding'
       super
     end
 

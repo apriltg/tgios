@@ -127,6 +127,11 @@ module Tgios
               tableView.deleteRowsAtIndexPaths([index_path], withRowAnimation: UITableViewRowAnimationFade) if success
             end
           end
+          unless @events[:delete_section].nil?
+            @events[:delete_section].call(field_set, @models[index_path.section], {tableView: tableView, commitEditingStyle:editingStyle, forRowAtIndexPath:index_path}) do |success|
+              tableView.deleteSections(NSIndexSet.indexSetWithIndex(index_path.section), withRowAnimation: UITableViewRowAnimationFade) if success
+            end
+          end
         end
       end
     end
