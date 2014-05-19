@@ -6,6 +6,7 @@ module Tgios
       @events={}
       @events[:build_cell]=->(cell_identifier, type) { build_cell(cell_identifier, type)}
       @events[:update_cell]=->(field_set, cell, index_path) { update_field(field_set, cell, index_path)}
+      @events[:update_cell_height]=->(field_set, index_path) { update_cell_height(field_set, index_path) }
       self
 
     end
@@ -144,9 +145,25 @@ module Tgios
 
     def tableView(tableView, heightForRowAtIndexPath: index_path)
       field_set = field_set_at_index_path(index_path)
+      @events[:update_cell_height].call(field_set, index_path)
+    end
+
+    def update_cell_height(field_set, index_path)
       field_set = field_set[:child_field] unless field_set[:child_index].nil?
+      return field_set[:height] if field_set[:height]
       if field_set[:type] == :big_label || field_set[:type] == :checkbox
         26 + 19 * (field_set[:lines] || 2)
+      elsif field_set[:type] == :text_view
+        110
+      elsif field_set[:type] == :dynamic_label
+        return 45 if @model.send(field_set[:name]).nil?
+        width = 284
+        width -= 20 unless field_set[:accessory].nil? || field_set[:accessory] == :none
+        width -= 94 if field_set[:show_label]
+        height = @model.send(field_set[:name]).sizeWithFont(UIFont.systemFontOfSize(14),
+                                                            constrainedToSize: [width, 9999],
+                                                            lineBreakMode: UILineBreakModeCharacterWrap).height + 20
+        [height, 45].max
       else
         45
       end
