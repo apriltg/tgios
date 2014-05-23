@@ -5,7 +5,7 @@ PATH
       awesome_print_motion
       motion-layout
       plastic_cup (>= 0.1.1)
-      sugarcube (= 1.1.0)
+      sugarcube (>= 1.1.0)
 
 GEM
   remote: https://rubygems.org/

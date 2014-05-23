@@ -19,7 +19,7 @@ A package of ruby-motion libraries written by our team.
   gem.files       = `git ls-files`.split($\)
   gem.require_paths = ['lib']
   gem.test_files  = gem.files.grep(%r{^spec/})
-  gem.add_dependency 'sugarcube', '1.1.0'
+  gem.add_dependency 'sugarcube', '>=1.1.0'
   #gem.add_dependency 'sugarcube-classic'
   gem.add_dependency 'awesome_print_motion'
   gem.add_dependency 'motion-layout'

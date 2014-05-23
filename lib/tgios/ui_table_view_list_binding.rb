@@ -66,6 +66,7 @@ module Tgios
     end
 
     def tableView(tableView, heightForRowAtIndexPath: index_path)
+      return @options[:height] unless @options[:height].nil?
       if @options[:lines]
         26 + 19 * (@options[:lines] || 2)
       else

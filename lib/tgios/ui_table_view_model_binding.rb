@@ -258,6 +258,7 @@ module Tgios
 
     def update_cell_height(field_set, index_path)
       field_set = field_set[:child_field] unless field_set[:child_index].nil?
+      return field_set[:height] unless field_set[:height].nil?
       if field_set[:type] == :big_label || field_set[:type] == :checkbox
         26 + 19 * (field_set[:lines] || 2)
       elsif field_set[:type] == :text_view
