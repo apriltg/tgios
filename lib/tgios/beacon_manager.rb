@@ -13,6 +13,14 @@ module Tgios
   class BeaconManager < BindingBase
     attr_accessor :rssi
 
+    def self.default=(val)
+      @default = val
+    end
+
+    def self.default
+      @default
+    end
+
     def initialize(uuid, rssi=-70)
       @events = {}
       @previous_beacons = []
