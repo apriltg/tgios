@@ -6,7 +6,7 @@ module Tgios
 
     def on(event_name, &block)
       raise ArgumentError.new("Event not found, valid events are: [#{Events.join(', ')}]") unless Events.include?(event_name)
-      @events[event_name]=block
+      @events[event_name]=block.weak!
       self
     end
 

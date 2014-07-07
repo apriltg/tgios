@@ -5,7 +5,7 @@ module Tgios
     end
 
     def on(event_name, &block)
-      @events[event_name]=block
+      @events[event_name]=block.weak!
     end
 
     def bind(picker_view, list: list, display_field: display_field)

@@ -27,7 +27,7 @@ module Tgios
     end
 
     def on(event_name, &block)
-      @events[event_name]=block
+      @events[event_name]=block.weak!
       self
     end
 
