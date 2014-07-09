@@ -27,7 +27,7 @@ module Tgios
       }) unless Base.get_style_sheet(:decimal_button)
 
       @field_name=field_name
-      @options=options
+      @options=options.dup
       %w(precision keyboard ignore_number_addon type auto_correct auto_capitalize reduce_font_size field_style).each do |k|
         instance_variable_set("@#{k}", @options.delete(k.to_sym))
       end
