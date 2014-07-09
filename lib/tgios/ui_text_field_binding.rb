@@ -28,6 +28,10 @@ module Tgios
 
       @field_name=field_name
       @options=options
+      %w(precision keyboard ignore_number_addon type auto_correct auto_capitalize reduce_font_size field_style).each do |k|
+        instance_variable_set("@#{k}", @options.delete(k.to_sym))
+      end
+
       @events={}
       @ui_field=WeakRef.new(ui_field)
       @model=WeakRef.new(model)
@@ -43,7 +47,7 @@ module Tgios
         @ui_field.text= if val.respond_to?(:round)
                           default_precision = 0
                           default_precision = 6 unless val.is_a?(Integer)
-                          val.round((@options[:precision] || default_precision)).to_s
+                          val.round((@precision || default_precision)).to_s
                         else
                           val.to_s
                         end
@@ -122,16 +126,16 @@ module Tgios
     end
 
     def is_decimal?
-      @options[:keyboard] == :decimal && is_number_pad?
+      @keyboard == :decimal && is_number_pad?
     end
 
     def add_decimal_button
-      if is_decimal? && @ui_field.delegate == self && !@options[:ignore_number_addon]
+      if is_decimal? && @ui_field.delegate == self && !@ignore_number_addon
         temp_window = (UIApplication.sharedApplication.windows[1] || UIApplication.sharedApplication.windows[0])
         temp_window.subviews.each do |keyboard|
           if keyboard.description.hasPrefix('<UIPeripheralHost')
             if @decimal_button.nil?
-              @decimal_button = PlasticCup::Base.style(UIButton.custom, :decimal_button)
+              @decimal_button = Base.style(UIButton.custom, :decimal_button)
               @decimal_button.addTarget(self, action: 'decimal_tapped', forControlEvents: UIControlEventTouchUpInside)
             end
             keyboard.addSubview(@decimal_button)
@@ -180,12 +184,13 @@ module Tgios
     ####
 
     def update_ui_field_style
-      @ui_field.secureTextEntry=@options[:type]==:password
-      @ui_field.autocorrectionType = get_auto_correct_type(@options[:auto_correct])
-      @ui_field.autocapitalizationType = get_auto_capitalize_type(@options[:auto_capitalize])
-      @ui_field.keyboardType = get_keyboard_type(@options[:keyboard])
-      @ui_field.enabled = @options[:type] != :label
-      @ui_field.adjustsFontSizeToFitWidth = @options[:reduce_font_size]
+      Base.style(@ui_field, @field_style) if @field_style.present?
+      @ui_field.secureTextEntry=@type==:password
+      @ui_field.autocorrectionType = get_auto_correct_type(@auto_correct)
+      @ui_field.autocapitalizationType = get_auto_capitalize_type(@auto_capitalize)
+      @ui_field.keyboardType = get_keyboard_type(@keyboard)
+      @ui_field.enabled = @type != :label
+      @ui_field.adjustsFontSizeToFitWidth = @reduce_font_size
 
       if @model.respond_to?(:has_error?) && @model.has_error?(@field_name)
         @ui_field.leftViewMode = UITextFieldViewModeAlways
@@ -197,15 +202,15 @@ module Tgios
                                textAlignment: :center.uialignment,
                                text: '!',
                                tag: 888}
-          error_label = PlasticCup::Base.style(UILabel.new, error_label_styles)
+          error_label = Base.style(UILabel.new, error_label_styles)
           @ui_field.leftView = error_label
         end
       else
         @ui_field.leftViewMode = UITextFieldViewModeNever
       end
 
-      if is_number_pad? && !@options[:ignore_number_addon]
-        text_toolbar = PlasticCup::Base.style(UIToolbar.new, frame: CGRectMake(0,0,320,44))
+      if is_number_pad? && !@ignore_number_addon
+        text_toolbar = Base.style(UIToolbar.new, frame: CGRectMake(0,0,320,44))
         done_button = UIBarButtonItem.alloc.initWithBarButtonSystemItem(UIBarButtonSystemItemDone, target: self, action: 'textFieldShouldReturn:')
         text_toolbar.items=[
             UIBarButtonItem.flexible_space, done_button
