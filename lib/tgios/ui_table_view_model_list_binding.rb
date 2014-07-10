@@ -122,12 +122,13 @@ module Tgios
         field_set = field_set_at_index_path(index_path)
         real_fs = field_set
         real_fs = real_fs[:child_field] unless real_fs[:child_index].nil?
-        if real_fs[:delete] == true
+        if real_fs[:delete] == true # TODO: change :delete to :delete_row after trim-ios changed
           unless @events[:delete_row].nil?
             @events[:delete_row].call(field_set, @models[index_path.section].send(field_set[:name]), {tableView: tableView, commitEditingStyle: editingStyle, forRowAtIndexPath:index_path}) do |success|
               tableView.deleteRowsAtIndexPaths([index_path], withRowAnimation: UITableViewRowAnimationFade) if success
             end
           end
+        elsif real_fs[:delete_section] == true
           unless @events[:delete_section].nil?
             @events[:delete_section].call(field_set, @models[index_path.section], {tableView: tableView, commitEditingStyle:editingStyle, forRowAtIndexPath:index_path}) do |success|
               tableView.deleteSections(NSIndexSet.indexSetWithIndex(index_path.section), withRowAnimation: UITableViewRowAnimationFade) if success
@@ -140,7 +141,7 @@ module Tgios
     def tableView(tableView, canEditRowAtIndexPath: index_path)
       field_set = field_set_at_index_path(index_path)
       field_set = field_set[:child_field] unless field_set[:child_index].nil?
-      return field_set[:delete] == true
+      return field_set[:delete] == true || field_set[:delete_section] == true
     end
 
     def tableView(tableView, heightForRowAtIndexPath: index_path)
