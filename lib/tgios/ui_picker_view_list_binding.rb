@@ -26,7 +26,8 @@ module Tgios
     end
 
     def pickerView(pickerView, titleForRow: row, forComponent: component)
-      @list[row][@display_field]
+      record = @list[row]
+      record.is_a?(Hash) ? record[@display_field] : record.send(@display_field)
     end
 
     def pickerView(pickerView, didSelectRow:row, inComponent:component)
