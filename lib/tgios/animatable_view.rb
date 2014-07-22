@@ -16,18 +16,18 @@ module Tgios
     end
 
     def show_animated
+      new_frame = self.frame
+      new_frame.origin.y = self.superview.frame.size.height - self.bounds.size.height
       @show_notification ||= NSNotification.notificationWithName(
           UIKeyboardWillShowNotification,
           object: self,
-          userInfo:{UIKeyboardFrameEndUserInfoKey=> NSValue.valueWithCGRect(self.frame),
+          userInfo:{UIKeyboardFrameEndUserInfoKey=> NSValue.valueWithCGRect(self.superview.convertRect(new_frame, toView: nil)),
                     UIKeyboardAnimationCurveUserInfoKey=> UIViewAnimationOptionCurveEaseInOut,
                     UIKeyboardAnimationDurationUserInfoKey=> DURATION})
       UIView.animateWithDuration(DURATION, animations: ->{
         NSNotificationCenter.defaultCenter.postNotification(@show_notification)
         self.alpha = 1.0
-        frame = self.frame
-        frame.origin.y = self.superview.frame.size.height - self.bounds.size.height
-        self.frame = frame
+        self.frame = new_frame
       })
       @is_shown = true
     end

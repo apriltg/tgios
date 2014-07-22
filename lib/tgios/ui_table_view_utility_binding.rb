@@ -63,13 +63,15 @@ module Tgios
     end
 
     def shrink_table_view(note)
-      # TODO: don't shrink when table frame bottom is above the keyboard
       @shrinking = true
       rect = note[UIKeyboardFrameEndUserInfoKey].CGRectValue
+      table_rect= @table.superview.convertRect(@table.frame, toView:nil)
+      intersect = CGRectIntersection(rect, table_rect)
+      expand_height = intersect.present? ? intersect.size.height : 0
       if @expanding
-        @shrink_height = rect.size.height
+        @shrink_height = expand_height
       else
-        set_content_inset_bottom(rect.size.height)
+        set_content_inset_bottom(expand_height)
       end
     end
 
