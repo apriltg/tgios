@@ -140,11 +140,14 @@ module Tgios
 
     def tableView(tableView, canEditRowAtIndexPath: index_path)
       field_set = field_set_at_index_path(index_path)
-      can_edit = @events[:can_edit].call(field_set, index_path) unless @events[:can_edit].nil?
-      if can_edit.nil?
-        field_set = field_set[:child_field] unless field_set[:child_index].nil?
-        can_edit = field_set[:delete] == true || field_set[:delete_section] == true
+      unless field_set.nil?
+        can_edit = @events[:can_edit].call(field_set, index_path) unless @events[:can_edit].nil?
+        if can_edit.nil?
+          field_set = field_set[:child_field] unless field_set[:child_index].nil?
+          can_edit = field_set[:delete] == true || field_set[:delete_section] == true
+        end
       end
+      can_edit = false if can_edit.nil?
       can_edit
     end
 
