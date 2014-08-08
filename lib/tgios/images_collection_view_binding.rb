@@ -21,7 +21,7 @@ module Tgios
                                                   },
                                                   clipsToBounds: true}.merge(options))
         CommonUIUtility.get_image(item) do |image|
-          image_view.image = image
+          image_view.image = image unless image.nil?
         end
         image_views << image_view
       end

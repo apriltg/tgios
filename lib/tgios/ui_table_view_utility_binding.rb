@@ -106,7 +106,7 @@ module Tgios
     end
 
     def scroll_to_index_path(index_path)
-      @table.scrollToRowAtIndexPath(index_path, atScrollPosition: UITableViewScrollPositionBottom, animated: true)
+      @table.scrollToRowAtIndexPath(index_path, atScrollPosition: UITableViewScrollPositionMiddle, animated: true)
       @index_path_to_scroll = nil
     end
 
