@@ -5,7 +5,7 @@ module Tgios
     def initialize(*args)
       super
       @events={}
-      @events[:setup_cell]=->(cell, subview, index_path) { setup_cell(cell, subview, index_path) }
+      @events[:setup_cell]=->(cell, subview, index_path) { setup_cell(cell, subview, index_path) }.weak!
     end
 
     def on(event_name, &block)

@@ -30,10 +30,10 @@ module Tgios
       }) unless Base.get_style_sheet(:ui_view_default_styles)
 
       @events={}
-      @events[:build_cell]=->(cell_identifier, type) { build_cell(cell_identifier, type) }
-      @events[:update_cell]=->(field_set, cell, index_path) { create_or_update_field(field_set, cell, index_path)}
-      @events[:update_accessory]=->(field_set, cell, index_path, ui_field) { update_accessory_type_or_view(field_set, cell, index_path, ui_field)}
-      @events[:update_cell_height]=->(field_set, index_path) { update_cell_height(field_set, index_path) }
+      @events[:build_cell]=->(cell_identifier, type) { build_cell(cell_identifier, type) }.weak!
+      @events[:update_cell]=->(field_set, cell, index_path) { create_or_update_field(field_set, cell, index_path)}.weak!
+      @events[:update_accessory]=->(field_set, cell, index_path, ui_field) { update_accessory_type_or_view(field_set, cell, index_path, ui_field)}.weak!
+      @events[:update_cell_height]=->(field_set, index_path) { update_cell_height(field_set, index_path) }.weak!
       @contact_buttons = []
     end
 

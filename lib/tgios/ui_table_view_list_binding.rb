@@ -2,8 +2,8 @@ module Tgios
   class UITableViewListBinding < BindingBase
     def initialize
       @events={}
-      @events[:build_cell]=->(cell_identifier) { build_cell(cell_identifier) }
-      @events[:update_cell]=->(record, cell, index_path) { update_cell_text(record, cell, index_path)}
+      @events[:build_cell]=->(cell_identifier) { build_cell(cell_identifier) }.weak!
+      @events[:update_cell]=->(record, cell, index_path) { update_cell_text(record, cell, index_path)}.weak!
     end
 
     def bind(tableView, list, display_field, options={})

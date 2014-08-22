@@ -4,9 +4,9 @@ module Tgios
       super
 
       @events={}
-      @events[:build_cell]=->(cell_identifier, type) { build_cell(cell_identifier, type)}
-      @events[:update_cell]=->(field_set, cell, index_path) { update_field(field_set, cell, index_path)}
-      @events[:update_cell_height]=->(field_set, index_path) { update_cell_height(field_set, index_path) }
+      @events[:build_cell]=->(cell_identifier, type) { build_cell(cell_identifier, type)}.weak!
+      @events[:update_cell]=->(field_set, cell, index_path) { update_field(field_set, cell, index_path)}.weak!
+      @events[:update_cell_height]=->(field_set, index_path) { update_cell_height(field_set, index_path) }.weak!
       self
 
     end
