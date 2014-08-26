@@ -28,7 +28,7 @@ module Tgios
 
       @field_name=field_name
       @options=options.dup
-      %w(precision keyboard ignore_number_addon type auto_correct auto_capitalize reduce_font_size field_style).each do |k|
+      %w(precision keyboard ignore_number_addon type auto_correct auto_capitalize reduce_font_size max_length field_style).each do |k|
         instance_variable_set("@#{k}", @options.delete(k.to_sym))
       end
 
@@ -115,6 +115,17 @@ module Tgios
         weak_text_field=WeakRef.new(textField)
         @events[:should_clear].call(@model, @field_name, {text_field: weak_text_field})
       end
+    end
+
+
+    def textField(textField, shouldChangeCharactersInRange:range, replacementString:string)
+      unless @max_length.is_a?(Numeric)
+        return true
+      end
+
+      new_length = textField.text.length - range.length + string.length
+
+      return new_length <= @max_length || string.include?("\n")
     end
 
     def keyboardDidShow(note)
