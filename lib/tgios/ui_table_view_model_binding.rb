@@ -91,7 +91,7 @@ module Tgios
     end
 
     def build_cell(cell_identifier, type)
-      if type == :checkbox
+      if type == :checkbox || type == :label_only || type == :array
         cell = UITableViewCell.default(cell_identifier)
         cell.textLabel.numberOfLines = 0
         if type == :label_only || type == :array
@@ -104,8 +104,6 @@ module Tgios
           cell.detailTextLabel.numberOfLines = 0
           cell.detailTextLabel.backgroundColor = :clear.uicolor
           cell.textLabel.numberOfLines = 0
-        elsif type == :label_only || type == :array
-          cell.detailTextLabel.textColor = UIColor.colorWithRed(0, green: 122.0/255.0, blue: 1.0, alpha: 1.0)
         else
           cell.textLabel.numberOfLines = 2
         end
