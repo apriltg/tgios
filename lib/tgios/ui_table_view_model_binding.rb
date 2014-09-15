@@ -10,11 +10,19 @@ module Tgios
       PlasticCup::Base.add_style_sheet(:ui_field_without_label, {
           extends: :ui_field_default_styles,
           frame: CGRectMake(16, 9, 292, 25)
+      }, :ios8) unless Base.get_style_sheet(:ui_field_without_label)
+      PlasticCup::Base.add_style_sheet(:ui_field_without_label, {
+          extends: :ui_field_default_styles,
+          frame: CGRectMake(16, 9, 292, 25)
       }, :ios7) unless Base.get_style_sheet(:ui_field_without_label)
       PlasticCup::Base.add_style_sheet(:ui_field_without_label, {
           extends: :ui_field_default_styles,
           frame: CGRectMake(16, 9, 282, 25)
       }) unless Base.get_style_sheet(:ui_field_without_label)
+      PlasticCup::Base.add_style_sheet(:ui_field_with_label, {
+          extends: :ui_field_default_styles,
+          frame: CGRectMake(114, 9, 194, 25)
+      }, :ios8) unless Base.get_style_sheet(:ui_field_with_label)
       PlasticCup::Base.add_style_sheet(:ui_field_with_label, {
           extends: :ui_field_default_styles,
           frame: CGRectMake(114, 9, 194, 25)
