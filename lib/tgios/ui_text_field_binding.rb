@@ -13,24 +13,17 @@ module Tgios
       }) unless Base.get_style_sheet(:decimal_button_common)
       Base.add_style_sheet(:decimal_button, {
           extends: :decimal_button_common,
-          frame: [[0, 162.5 + 44], [104.5, 54]],
-          highlighted_background_image: Tgios::CommonUIUtility.imageFromColor(:white),
-          titleColor: :black.uicolor
-      }, :ios8) unless Base.get_style_sheet(:decimal_button)
-
-      Base.add_style_sheet(:decimal_button, {
-          extends: :decimal_button_common,
-          frame: [[0, 162.5 + 44], [104.5, 54]],
-          highlighted_background_image: Tgios::CommonUIUtility.imageFromColor(:white),
-          titleColor: :black.uicolor
-      }, :ios7) unless Base.get_style_sheet(:decimal_button)
-
-      Base.add_style_sheet(:decimal_button, {
-          extends: :decimal_button_common,
           frame: [[0, 163 + 44], [105, 54]],
           highlighted_background_image: Tgios::CommonUIUtility.imageFromColor(UIColor.colorWithRed(0.324, green: 0.352, blue: 0.402, alpha: 1)),
           titleColor: :darkgray.uicolor,
           highlighted_title_color: :white.uicolor
+      }, :ios6) unless Base.get_style_sheet(:decimal_button)
+
+      Base.add_style_sheet(:decimal_button, {
+          extends: :decimal_button_common,
+          frame: [[0, 162.5 + 44], [104.5, 54]],
+          highlighted_background_image: Tgios::CommonUIUtility.imageFromColor(:white),
+          titleColor: :black.uicolor
       }) unless Base.get_style_sheet(:decimal_button)
 
       @field_name=field_name
