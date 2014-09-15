@@ -16,6 +16,13 @@ module Tgios
           frame: [[0, 162.5 + 44], [104.5, 54]],
           highlighted_background_image: Tgios::CommonUIUtility.imageFromColor(:white),
           titleColor: :black.uicolor
+      }, :ios8) unless Base.get_style_sheet(:decimal_button)
+
+      Base.add_style_sheet(:decimal_button, {
+          extends: :decimal_button_common,
+          frame: [[0, 162.5 + 44], [104.5, 54]],
+          highlighted_background_image: Tgios::CommonUIUtility.imageFromColor(:white),
+          titleColor: :black.uicolor
       }, :ios7) unless Base.get_style_sheet(:decimal_button)
 
       Base.add_style_sheet(:decimal_button, {

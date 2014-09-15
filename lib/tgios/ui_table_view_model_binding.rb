@@ -10,11 +10,19 @@ module Tgios
       PlasticCup::Base.add_style_sheet(:ui_field_without_label, {
           extends: :ui_field_default_styles,
           frame: CGRectMake(16, 9, 292, 25)
+      }, :ios8) unless Base.get_style_sheet(:ui_field_without_label)
+      PlasticCup::Base.add_style_sheet(:ui_field_without_label, {
+          extends: :ui_field_default_styles,
+          frame: CGRectMake(16, 9, 292, 25)
       }, :ios7) unless Base.get_style_sheet(:ui_field_without_label)
       PlasticCup::Base.add_style_sheet(:ui_field_without_label, {
           extends: :ui_field_default_styles,
           frame: CGRectMake(16, 9, 282, 25)
       }) unless Base.get_style_sheet(:ui_field_without_label)
+      PlasticCup::Base.add_style_sheet(:ui_field_with_label, {
+          extends: :ui_field_default_styles,
+          frame: CGRectMake(114, 9, 194, 25)
+      }, :ios8) unless Base.get_style_sheet(:ui_field_with_label)
       PlasticCup::Base.add_style_sheet(:ui_field_with_label, {
           extends: :ui_field_default_styles,
           frame: CGRectMake(114, 9, 194, 25)
@@ -83,9 +91,13 @@ module Tgios
     end
 
     def build_cell(cell_identifier, type)
-      if type == :checkbox
+      if type == :checkbox || type == :label_only || type == :array
         cell = UITableViewCell.default(cell_identifier)
         cell.textLabel.numberOfLines = 0
+        if type == :label_only || type == :array
+          cell.textLabel.font = UIFont.systemFontOfSize(14)
+          cell.textLabel.textColor = UIColor.colorWithRed(0, green: 122.0/255.0, blue: 1.0, alpha: 1.0)
+        end
       else
         cell = UITableViewCell.value2(cell_identifier)
 
@@ -93,8 +105,6 @@ module Tgios
           cell.detailTextLabel.numberOfLines = 0
           cell.detailTextLabel.backgroundColor = :clear.uicolor
           cell.textLabel.numberOfLines = 0
-        elsif type == :label_only || type == :array
-          cell.detailTextLabel.textColor = UIColor.colorWithRed(0, green: 122.0/255.0, blue: 1.0, alpha: 1.0)
         else
           cell.textLabel.numberOfLines = 2
         end
@@ -144,7 +154,7 @@ module Tgios
 
         when :array
           if field_set[:child_index].nil?
-            cell.detailTextLabel.text = field_set[:label]
+            cell.textLabel.text = field_set[:label]
           else
             child_field = field_set[:child_field]
             child = @model.send(field_set[:name])[field_set[:child_index]]
@@ -163,7 +173,7 @@ module Tgios
           cell.imageView.image = @model.send(field_set[:name])== true ? 'tick_select.png'.uiimage : 'tick_deselect.png'.uiimage
 
         when :label_only
-          cell.detailTextLabel.text = field_set[:label]
+          cell.textLabel.text = field_set[:label]
 
         when :text_view
 
