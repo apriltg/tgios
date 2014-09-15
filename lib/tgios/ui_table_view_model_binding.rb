@@ -95,6 +95,7 @@ module Tgios
         cell = UITableViewCell.default(cell_identifier)
         cell.textLabel.numberOfLines = 0
         if type == :label_only || type == :array
+          cell.textLabel.font = UIFont.systemFontOfSize(14)
           cell.textLabel.textColor = UIColor.colorWithRed(0, green: 122.0/255.0, blue: 1.0, alpha: 1.0)
         end
       else
