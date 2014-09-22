@@ -45,10 +45,14 @@ module Tgios
       bindings_prepare_release
       @bindings={}
       @tv_bindings={}
-      self.model=model
       @tableView.dataSource=self
       @tableView.delegate=self
-      @table_utility_binding = UITableViewUtilityBinding.new.bind(@tableView)
+      self.model=model
+      if @table_utility_binding.nil?
+        @table_utility_binding = UITableViewUtilityBinding.new.bind(@tableView)
+      else
+        @table_utility_binding.bind(@tableView)
+      end
       self
     end
 
