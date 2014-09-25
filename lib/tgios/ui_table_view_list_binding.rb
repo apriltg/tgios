@@ -66,6 +66,15 @@ module Tgios
     end
 
     def tableView(tableView, heightForRowAtIndexPath: index_path)
+      height = if @events.has_key?(:cell_height)
+                 record = @list[index_path.row]
+                 @events[:cell_height].call(index_path, record)
+               end
+      return height if height.is_a?(Numeric)
+      cell_height
+    end
+
+    def cell_height
       return @options[:height] unless @options[:height].nil?
       if @options[:lines]
         26 + 19 * (@options[:lines] || 2)
