@@ -97,6 +97,32 @@ module Tgios
         end
       end
     end
+    
+    def tableView(tableView, commitEditingStyle: editingStyle, forRowAtIndexPath: index_path)
+      if editingStyle == UITableViewCellEditingStyleDelete
+        if @events[:delete_row].present?
+          @events[:delete_row].call(@list[index_path.row], {tableView: tableView, commitEditingStyle: editingStyle, forRowAtIndexPath:index_path}) do |success|
+            tableView.deleteRowsAtIndexPaths([index_path], withRowAnimation: UITableViewRowAnimationFade) if success
+          end
+        end
+      end
+    end
+    
+    def tableView(tableView, canEditRowAtIndexPath: index_path)
+      can_edit = false
+
+      if @events[:delete_row].present?
+        if @events[:can_edit].present?
+          @events[:can_edit].call(tableView, index_path) do |success|
+            can_edit = success
+          end
+        else
+          can_edit = true
+        end
+      end
+
+      can_edit
+    end
 
     def onPrepareForRelease
       @events=nil
