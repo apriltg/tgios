@@ -1,5 +1,7 @@
 module Tgios
   class ScanQrController < UIViewController
+    attr_accessor :types
+
     def viewDidLoad
       super
       self.view.backgroundColor = :dark_gray.uicolor
@@ -39,25 +41,13 @@ module Tgios
       @output = AVCaptureMetadataOutput.alloc.init
       @output.setMetadataObjectsDelegate self, queue: @queue.dispatch_object
 
-      @session.addInput @input
-      @session.addOutput @output
-      @output.metadataObjectTypes = [ AVMetadataObjectTypeQRCode ]
-
-      @isScanning = true
-
-      @session.startRunning
-      #NSLog "session running: #{@session.running?}"
-
-
-
       camera_size = layerRect.size
       sq_size = 240
       sq_border = 20
       line_length = 60
+      border_color = :white.cgcolor(0.8)
       sq_x = (camera_size.width - sq_size) / 2
       sq_y = (camera_size.height - sq_size) / 2
-      v_height = sq_size - sq_border * 2
-      border_color = :white.cgcolor(0.8)
 
       square = Base.style(CALayer.layer, {frame: [[sq_x, sq_y],[sq_size, sq_size]]})
 
@@ -81,25 +71,30 @@ module Tgios
 
       self.view.layer.addSublayer square
 
+      @output.rectOfInterest = [[sq_y / camera_size.height, sq_x / camera_size.width], [sq_size / camera_size.height, sq_size / camera_size.width]]
+
+      @session.addInput @input
+      @session.addOutput @output
+      @output.metadataObjectTypes = ( @types || [AVMetadataObjectTypeQRCode] )
+
+      @isScanning = true
+
+      @session.startRunning
+
       true
     end
 
     def captureOutput(captureOutput, didOutputMetadataObjects: metadataObjects, fromConnection: connection)
-
       metadataObject = metadataObjects[0]
 
-      if !@scanned && metadataObject.present? && metadataObject.type == AVMetadataObjectTypeQRCode
+      if !@scanned && metadataObject.present?
         @scanned = true
-        #NSLog "#{metadataObjects[0].stringValue}"
-
 
         self.performSelectorOnMainThread('openQRCode:', withObject: metadataObject.stringValue, waitUntilDone: false)
       end
     end
 
     def openQRCode(result)
-      #NSLog "openQRCode()"
-
       stop_scanning
 
       @events[:result_scanned].call(result)
@@ -114,7 +109,6 @@ module Tgios
         @isScanning = false
 
         @session.stopRunning
-        #NSLog "session running: #{@session.running?}"
 
         @previewLayer.removeFromSuperlayer
         @previewLayer = nil
