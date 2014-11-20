@@ -86,6 +86,7 @@ module Tgios
           begin
             manager = CLLocationManager.alloc.init
             manager.delegate = self
+            manager.requestWhenInUseAuthorization if manager.respond_to?(:requestWhenInUseAuthorization)
             manager
           end
     end
