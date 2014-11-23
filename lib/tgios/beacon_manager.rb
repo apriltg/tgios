@@ -11,7 +11,11 @@ module Tgios
   end
 
   class BeaconManager < BindingBase
-    attr_accessor :rssi
+    attr_accessor :rssi, :current_beacon
+
+    BeaconFoundKey = 'Tgios::BeaconManager::BeaconFound'
+    EnterRegionKey = 'Tgios::BeaconManager::EnterRegion'
+    ExitRegionKey = 'Tgios::BeaconManager::ExitRegion'
 
     def self.default=(val)
       @default = val
@@ -21,9 +25,10 @@ module Tgios
       @default
     end
 
-    def initialize(uuid, rssi=-70)
+    def initialize(uuid, rssi=-70, background=false)
       @events = {}
       @previous_beacons = []
+      @background = background
 
       @uuid = NSUUID.alloc.initWithUUIDString(uuid)
       @rssi = rssi
@@ -47,38 +52,45 @@ module Tgios
     def locationManager(manager, didDetermineState: state, forRegion: region)
       NSLog "didDetermineState #{state}"
       if state == CLRegionStateInside
-        location_manager.startRangingBeaconsInRegion(region)
+        manager.startRangingBeaconsInRegion(region)
       end
     end
 
     def locationManager(manager, didEnterRegion: region)
       NSLog 'didEnterRegion'
       if region.isKindOfClass(CLBeaconRegion)
-        location_manager.startRangingBeaconsInRegion(region)
+        manager.startRangingBeaconsInRegion(region)
       end
     end
 
     def locationManager(manager, didExitRegion: region)
       NSLog 'didExitRegion'
       if region.isKindOfClass(CLBeaconRegion)
-        location_manager.stopRangingBeaconsInRegion(region)
+        manager.stopRangingBeaconsInRegion(region)
+        if has_event(:exit_region)
+          @events[:exit_region].call(region)
+        end
       end
     end
 
     def locationManager(manager, didRangeBeacons: beacons, inRegion: region)
       if has_event(:beacons_found)
-        @events[:beacons_found].call(beacons.select{|b| b.proximity != CLProximityUnknown && b.rssi >= @rssi})
+        @events[:beacons_found].call(beacons.select{|b| b.proximity != CLProximityUnknown && b.rssi >= @rssi}, beacons)
       end
-      if has_event(:beacon_found)
-        known_beacons = beacons.select{|b| b.proximity != CLProximityUnknown}.sort_by{|b| b.rssi}
-        if known_beacons.present?
-          beacon = known_beacons.last if known_beacons.last.rssi >= @rssi
-          beacon ||= known_beacons.last if known_beacons.length == 1 && known_beacons.last.rssi >= @rssi - 1
-        end
 
-        push_beacon(beacon)
+      known_beacons = beacons.select{|b| b.proximity != CLProximityUnknown}.sort_by{|b| b.rssi}
+      if known_beacons.present?
+        beacon = known_beacons.last if known_beacons.last.rssi >= @rssi
+        beacon ||= known_beacons.last if known_beacons.length == 1 && known_beacons.last.rssi >= @rssi - 1
+      end
+
+      push_beacon(beacon)
+
+      if has_event(:beacon_found)
         @events[:beacon_found].call(@current_beacon)
       end
+
+      BeaconFoundKey.post_notification(self, {region: region, beacon: @current_beacon})
     end
 
     def location_manager
@@ -86,9 +98,26 @@ module Tgios
           begin
             manager = CLLocationManager.alloc.init
             manager.delegate = self
-            manager.requestAlwaysAuthorization if manager.respond_to?(:requestAlwaysAuthorization)
+            request_authorization(manager)
             manager
           end
+    end
+
+    def request_authorization(manager)
+      status = CLLocationManager.authorizationStatus
+      if status == KCLAuthorizationStatusAuthorizedWhenInUse || status == KCLAuthorizationStatusDenied
+        title = (status == kCLAuthorizationStatusDenied) ? "Location services are off" : "Background location is not enabled"
+        message = "To use background location you must turn on 'Always' in the Location Services Settings"
+
+        UIAlertView.alert(title,
+                          buttons: [ 'Cancel', 'Settings'],
+                          message: message,
+                          success: proc { |pressed| UIApplication.sharedApplication.openURL(UIApplicationOpenSettingsURLString.nsurl) }
+        )
+      else
+        manager.requestAlwaysAuthorization if manager.respond_to?(:requestAlwaysAuthorization)
+      end
+
     end
 
     def start_monitor
@@ -108,7 +137,7 @@ module Tgios
 
     def on_enter_background(noti)
       NSLog 'on_enter_background'
-      stop_monitor
+      stop_monitor unless @background
     end
 
     def has_event(event)
