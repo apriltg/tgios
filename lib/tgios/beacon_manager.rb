@@ -25,10 +25,11 @@ module Tgios
       @default
     end
 
-    def initialize(uuid, rssi=-70, background=false)
+    def initialize(uuid, rssi=-70, background=false, tolerance=5)
       @events = {}
       @previous_beacons = []
       @background = background
+      @tolerance = (tolerance || 5)
 
       @uuid = NSUUID.alloc.initWithUUIDString(uuid)
       @rssi = rssi
@@ -104,18 +105,16 @@ module Tgios
     end
 
     def request_authorization(manager)
-      status = CLLocationManager.authorizationStatus
-      if status == KCLAuthorizationStatusAuthorizedWhenInUse || status == KCLAuthorizationStatusDenied
-        title = (status == kCLAuthorizationStatusDenied) ? "Location services are off" : "Background location is not enabled"
-        message = "To use background location you must turn on 'Always' in the Location Services Settings"
+      if manager.respond_to?(:requestAlwaysAuthorization)
+        status = CLLocationManager.authorizationStatus
+        if status == KCLAuthorizationStatusAuthorizedWhenInUse || status == KCLAuthorizationStatusDenied
+          title = (status == kCLAuthorizationStatusDenied) ? "Location services are off" : "Background location is not enabled"
+          message = "To use background location you must turn on 'Always' in the Location Services Settings"
 
-        UIAlertView.alert(title,
-                          buttons: [ 'Cancel', 'Settings'],
-                          message: message,
-                          success: proc { |pressed| UIApplication.sharedApplication.openURL(UIApplicationOpenSettingsURLString.nsurl) }
-        )
-      else
-        manager.requestAlwaysAuthorization if manager.respond_to?(:requestAlwaysAuthorization)
+          UIAlertView.alert(title, message: message)
+        else
+          manager.requestAlwaysAuthorization
+        end
       end
 
     end
@@ -155,7 +154,7 @@ module Tgios
         end
       end
       @previous_beacons << beacon
-      @previous_beacons.delete_at(0) if @previous_beacons.length > 3
+      @previous_beacons.delete_at(0) if @previous_beacons.length > @tolerance
     end
 
     def beacon_eqs(beacon1, beacon2)
