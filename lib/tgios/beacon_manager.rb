@@ -11,7 +11,7 @@ module Tgios
   end
 
   class BeaconManager < BindingBase
-    attr_accessor :rssi, :current_beacon
+    attr_accessor :rssi, :tolerance, :current_beacon, :background
 
     BeaconFoundKey = 'Tgios::BeaconManager::BeaconFound'
     EnterRegionKey = 'Tgios::BeaconManager::EnterRegion'
@@ -75,9 +75,6 @@ module Tgios
     end
 
     def locationManager(manager, didRangeBeacons: beacons, inRegion: region)
-      if has_event(:beacons_found)
-        @events[:beacons_found].call(beacons.select{|b| b.proximity != CLProximityUnknown && b.rssi >= @rssi}, beacons)
-      end
 
       known_beacons = beacons.select{|b| b.proximity != CLProximityUnknown}.sort_by{|b| b.rssi}
       if known_beacons.present?
@@ -86,6 +83,10 @@ module Tgios
       end
 
       push_beacon(beacon)
+
+      if has_event(:beacons_found)
+        @events[:beacons_found].call(beacons.select{|b| b.proximity != CLProximityUnknown && b.rssi >= @rssi}, beacons, @current_beacon)
+      end
 
       if has_event(:beacon_found)
         @events[:beacon_found].call(@current_beacon)
