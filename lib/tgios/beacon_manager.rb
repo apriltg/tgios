@@ -80,13 +80,13 @@ module Tgios
       known_beacons = beacons.select{|b| b.proximity != CLProximityUnknown}
       unknown_beacons = beacons - known_beacons
       beacon = nil
-      beacon = known_beacons.first if known_beacons.first.rssi >= @rssi if known_beacons.present?
+      beacons_in_range = known_beacons.select{|b| b.rssi >= @rssi}
+      beacon = beacons_in_range.first if beacons_in_range.present?
       
-
       push_beacon(beacon) unless beacon.nil?
 
       if has_event(:beacons_found)
-        @events[:beacons_found].call(known_beacons.select{|b| b.rssi >= @rssi}, beacons, @current_beacon)
+        @events[:beacons_found].call(beacons_in_range, beacons, @current_beacon)
       end
 
       if has_event(:beacon_found)
