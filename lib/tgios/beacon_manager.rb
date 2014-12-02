@@ -76,16 +76,18 @@ module Tgios
 
     def locationManager(manager, didRangeBeacons: beacons, inRegion: region)
 
-      known_beacons = beacons.select{|b| b.proximity != CLProximityUnknown}.sort_by{|b| b.rssi}
+      beacons = beacons.sort_by{|b| b.rssi}.reverse
+      known_beacons = beacons.select{|b| b.proximity != CLProximityUnknown}
+      unknown_beacons = beacons - known_beacons
       if known_beacons.present?
-        beacon = known_beacons.last if known_beacons.last.rssi >= @rssi
-        beacon ||= known_beacons.last if known_beacons.length == 1 && known_beacons.last.rssi >= @rssi - 1
+        beacon = known_beacons.first if known_beacons.first.rssi >= @rssi
+        beacon ||= known_beacons.first if known_beacons.length == 1 && known_beacons.first.rssi >= @rssi - 1
       end
 
       push_beacon(beacon)
 
       if has_event(:beacons_found)
-        @events[:beacons_found].call(beacons.select{|b| b.proximity != CLProximityUnknown && b.rssi >= @rssi}, beacons, @current_beacon)
+        @events[:beacons_found].call(known_beacons.select{|b| b.rssi >= @rssi}, known_beacons + unknown_beacons, @current_beacon)
       end
 
       if has_event(:beacon_found)
