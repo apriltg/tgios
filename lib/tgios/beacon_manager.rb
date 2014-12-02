@@ -11,7 +11,7 @@ module Tgios
   end
 
   class BeaconManager < BindingBase
-    attr_accessor :rssi, :tolerance, :current_beacon, :background
+    attr_accessor :range_method, :range_limit, :tolerance, :current_beacon, :background
 
     BeaconFoundKey = 'Tgios::BeaconManager::BeaconFound'
     EnterRegionKey = 'Tgios::BeaconManager::EnterRegion'
@@ -25,14 +25,15 @@ module Tgios
       @default
     end
 
-    def initialize(uuid, rssi=-70, background=false, tolerance=5)
+    def initialize(uuid, range_limit=-70, background=false, tolerance=5, range_method=:rssi)
       @events = {}
       @previous_beacons = []
       @background = background
       @tolerance = (tolerance || 5)
 
       @uuid = NSUUID.alloc.initWithUUIDString(uuid)
-      @rssi = rssi
+      @range_method = range_method
+      @range_limit = range_limit
 
       @region = CLBeaconRegion.alloc.initWithProximityUUID(@uuid, identifier: uuid.split('-').first)
       @region.notifyOnEntry = true
@@ -76,17 +77,17 @@ module Tgios
 
     def locationManager(manager, didRangeBeacons: beacons, inRegion: region)
 
-      beacons = beacons.sort_by{|b| b.rssi}.reverse
+      beacons = beacons.sort_by{|b| b.try(:range_method)}.reverse
       known_beacons = beacons.select{|b| b.proximity != CLProximityUnknown}
       unknown_beacons = beacons - known_beacons
       beacon = nil
-      beacons_in_range = known_beacons.select{|b| b.rssi >= @rssi}
+      beacons_in_range = known_beacons.select{|b| b.try(:range_method) >= @range_limit}
       beacon = beacons_in_range.first if beacons_in_range.present?
       
       push_beacon(beacon) # nil value will signify null beacon
 
       if has_event(:beacons_found)
-        # use known_beacons + unknown_beacons to make sure strongest RSSI comes to the top
+        # use known_beacons + unknown_beacons to make sure closest range comes to the top
         @events[:beacons_found].call(beacons_in_range, known_beacons + unknown_beacons, @current_beacon)
       end
 
