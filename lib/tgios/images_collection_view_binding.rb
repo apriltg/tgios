@@ -29,8 +29,12 @@ module Tgios
     end
 
     def list=(new_list)
+      set_list(new_list)
+    end
+
+    def set_list(new_list, options={})
       if new_list.is_a?(Array)
-        @image_views = self.class.new_image_views(new_list)
+        @image_views = self.class.new_image_views(new_list, options)
         reload(@image_views)
       end
     end
