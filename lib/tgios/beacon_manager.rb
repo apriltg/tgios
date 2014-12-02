@@ -83,10 +83,11 @@ module Tgios
       beacons_in_range = known_beacons.select{|b| b.rssi >= @rssi}
       beacon = beacons_in_range.first if beacons_in_range.present?
       
-      push_beacon(beacon) unless beacon.nil?
+      push_beacon(beacon) # nil value will signify null beacon
 
       if has_event(:beacons_found)
-        @events[:beacons_found].call(beacons_in_range, beacons, @current_beacon)
+        # use known_beacons + unknown_beacons to make sure strongest RSSI comes to the top
+        @events[:beacons_found].call(beacons_in_range, known_beacons + unknown_beacons, @current_beacon)
       end
 
       if has_event(:beacon_found)
