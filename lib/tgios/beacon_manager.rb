@@ -81,7 +81,7 @@ module Tgios
       known_beacons = beacons.select{|b| b.proximity != CLProximityUnknown}
       unknown_beacons = beacons - known_beacons
       beacon = nil
-      beacons_in_range = known_beacons.select{|b| b.try(@range_method) >= @range_limit}
+      beacons_in_range = known_beacons.select{|b| @range_method == :accuracy ? b.try(@range_method) <= @range_limit : b.try(@range_method) >= @range_limit}
       beacon = beacons_in_range.first if beacons_in_range.present?
       
       push_beacon(beacon) # nil value will signify null beacon
