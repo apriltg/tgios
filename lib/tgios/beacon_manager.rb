@@ -76,8 +76,8 @@ module Tgios
     end
 
     def locationManager(manager, didRangeBeacons: beacons, inRegion: region)
-
-      beacons = beacons.sort_by{|b| b.try(@range_method)}.reverse
+      beacons = beacons.sort_by{|b| b.try(@range_method)}
+      beacons = beacons.reverse if @range_method == :rssi
       known_beacons = beacons.select{|b| b.proximity != CLProximityUnknown}
       unknown_beacons = beacons - known_beacons
       beacon = nil
