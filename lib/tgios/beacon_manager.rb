@@ -85,8 +85,8 @@ module Tgios
       beacon = beacons_in_range.first if beacons_in_range.present?
       
       NSLog("beacons_in_range: ")
-      beacons_in_range.each do |bir|
-        NSLog("accuracy: #{bir.accuracy}, rssi: #{bir.rssi}")
+      beacons_in_range.each_with_index do |bir, i|
+        NSLog("##{i}: major: #{bir.major}, minor: #{bir.minor}, accuracy: #{bir.accuracy}, rssi: #{bir.rssi}")
       end
       push_beacon(beacon) # nil value will signify null beacon
 
