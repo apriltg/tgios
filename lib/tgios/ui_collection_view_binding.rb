@@ -2,6 +2,8 @@ module Tgios
   class UICollectionViewBinding < BindingBase
     include PlasticCup
 
+    attr_accessor :current_page
+
     def initialize(*args)
       super
       @events={}
@@ -43,8 +45,8 @@ module Tgios
 
     def scrollViewDidEndDecelerating(scrollView)
       page = (scrollView.contentOffset.x / scrollView.frame.size.width).round
-      if page != @page
-        @page = page
+      if page != @current_page
+        @current_page = page
         @events[:page_changed].call(page) unless @events[:page_changed].nil?
       end
     end
