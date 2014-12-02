@@ -84,6 +84,10 @@ module Tgios
       beacons_in_range = known_beacons.select{|b| @range_method == :accuracy ? b.try(@range_method) <= @range_limit : b.try(@range_method) >= @range_limit}
       beacon = beacons_in_range.first if beacons_in_range.present?
       
+      NSLog("beacons_in_range: ")
+      beacons_in_range.each do |bir|
+        NSLog("accuracy: #{bir.accuracy}, rssi: #{bir.rssi}")
+      end
       push_beacon(beacon) # nil value will signify null beacon
 
       if has_event(:beacons_found)
