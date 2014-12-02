@@ -49,6 +49,13 @@ module Tgios
       end
     end
 
+    def go_to_page(page, animated=false)
+      frame = @collection_view.bounds
+      frame.origin.x = frame.size.width * page
+      @collection_view.scrollRectToVisible(frame, animated: animated)
+      @events[:page_changed].call(page) unless @events[:page_changed].nil?
+    end
+
     def view_at(index_path)
       @views[index_path.row]
     end
