@@ -11,7 +11,7 @@ module Tgios
   end
 
   class BeaconManager < BindingBase
-    attr_accessor :rssi, :tolerance, :current_beacon, :background
+    attr_accessor :range_method, :range_limit, :tolerance, :current_beacon, :background
 
     BeaconFoundKey = 'Tgios::BeaconManager::BeaconFound'
     EnterRegionKey = 'Tgios::BeaconManager::EnterRegion'
@@ -25,14 +25,15 @@ module Tgios
       @default
     end
 
-    def initialize(uuid, rssi=-70, background=false, tolerance=5)
+    def initialize(uuid, range_limit=-70, background=false, tolerance=5, range_method=:rssi)
       @events = {}
       @previous_beacons = []
       @background = background
       @tolerance = (tolerance || 5)
 
       @uuid = NSUUID.alloc.initWithUUIDString(uuid)
-      @rssi = rssi
+      @range_method = range_method
+      @range_limit = range_limit
 
       @region = CLBeaconRegion.alloc.initWithProximityUUID(@uuid, identifier: uuid.split('-').first)
       @region.notifyOnEntry = true
@@ -75,19 +76,23 @@ module Tgios
     end
 
     def locationManager(manager, didRangeBeacons: beacons, inRegion: region)
-
-      beacons = beacons.sort_by{|b| b.rssi}.reverse
+      beacons = beacons.sort_by{|b| b.try(@range_method)}
+      beacons = beacons.reverse if @range_method == :rssi
       known_beacons = beacons.select{|b| b.proximity != CLProximityUnknown}
       unknown_beacons = beacons - known_beacons
-      if known_beacons.present?
-        beacon = known_beacons.first if known_beacons.first.rssi >= @rssi
-        beacon ||= known_beacons.first if known_beacons.length == 1 && known_beacons.first.rssi >= @rssi - 1
+      beacon = nil
+      beacons_in_range = known_beacons.select{|b| @range_method == :accuracy ? b.try(@range_method) <= @range_limit : b.try(@range_method) >= @range_limit}
+      beacon = beacons_in_range.first if beacons_in_range.present?
+      
+      NSLog("beacons_in_range: ")
+      beacons_in_range.each_with_index do |bir, i|
+        NSLog("##{i}: major: #{bir.major}, minor: #{bir.minor}, accuracy: #{bir.accuracy}, rssi: #{bir.rssi}")
       end
-
-      push_beacon(beacon)
+      push_beacon(beacon) # nil value will signify null beacon
 
       if has_event(:beacons_found)
-        @events[:beacons_found].call(known_beacons.select{|b| b.rssi >= @rssi}, known_beacons + unknown_beacons, @current_beacon)
+        # use known_beacons + unknown_beacons to make sure closest range comes to the top
+        @events[:beacons_found].call(beacons_in_range, known_beacons + unknown_beacons, @current_beacon)
       end
 
       if has_event(:beacon_found)
